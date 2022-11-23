@@ -1,4 +1,4 @@
-# Vue3-ts-node.js-
+# Vue3-ts-node.js-management-system
 一个前端vue3+ts，后端node.js的后台管理系统项目
 ### 技术栈
 
