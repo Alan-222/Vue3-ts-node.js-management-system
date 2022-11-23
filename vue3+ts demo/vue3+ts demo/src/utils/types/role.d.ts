@@ -1,0 +1,58 @@
+/**
+ * 角色查询参数类型
+ */
+declare interface RoleQueryParam {
+  role_name?: string;
+  pageNum: number;
+  pageSize: number;
+}
+
+/**
+ * 角色分页列表项
+ */
+declare interface RoleItem {
+  role_id: string;
+  role_name: string;
+  remark: string;
+  status: number;
+  menu_ids?: any;
+  buttons?: any;
+  create_time: string;
+  update_time: string | undefined;
+}
+
+/**
+ * 角色分页项类型
+ */
+
+/**
+ * 角色表单类型
+ */
+declare interface RoleFormData {
+  role_id: string | undefined;
+  role_name: string;
+  remark: string;
+  status: number;
+}
+
+/**
+ * 角色菜单项类型
+ */
+declare interface buttons {
+  menu_id: number;
+  btns: string[];
+}
+
+declare interface RoleResource {
+  menu_ids: number[];
+  buttons: number[];
+}
+
+declare interface menuOptionsItem {
+  label: string;
+  value: number;
+  children: Array | undefined;
+  perms: Array | undefined;
+  buttons: Array | undefined;
+}
+declare type menuOptions = Array<menuOptionsItem>;
