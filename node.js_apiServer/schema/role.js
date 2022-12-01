@@ -17,7 +17,7 @@ const menu_ids = joi.array().required();
 const buttons = joi.array().required();
 const role_ids = joi.array().required();
 
-// 角色的验证规则对象
+// 添加角色的验证规则对象
 exports.add_role_schema = {
   // 表示对res.body对象进行验证
   body: {
@@ -26,6 +26,7 @@ exports.add_role_schema = {
     status
   }
 };
+// 修改角色的验证规则对象
 exports.edit_role_schema = {
   query: {
     role_id
@@ -36,11 +37,13 @@ exports.edit_role_schema = {
     status
   }
 };
+// 删除角色的验证规则对象
 exports.delete_role_schema = {
   body: {
     role_ids
   }
 };
+// 获取单角色的验证规则对象
 exports.get_role_schema = {
   query: {
     role_id

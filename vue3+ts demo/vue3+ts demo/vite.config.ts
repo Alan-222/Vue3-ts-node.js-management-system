@@ -5,17 +5,16 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
-
 const baseURL = 'http://127.0.0.1:3007';
 export default defineConfig({
   plugins: [
-    vue(),
     AutoImport({
       resolvers: [ElementPlusResolver()]
     }),
     Components({
       resolvers: [ElementPlusResolver()]
     }),
+    vue(),
     createSvgIconsPlugin({
       // 指定需要缓存的图标文件夹
       iconDirs: [resolve(process.cwd(), 'src/assets/svg')],
@@ -48,12 +47,12 @@ export default defineConfig({
         target: 'http://127.0.0.1:3007',
         changeOrigin: true,
         rewrite: (path) => path.replace('//my$/', '')
-      },
-      '/my/article': {
-        target: 'http://127.0.0.1:3007',
-        changeOrigin: true,
-        rewrite: (path) => path.replace('//my/article$/', '')
       }
+      // '/my/article': {
+      //   target: 'http://127.0.0.1:3007',
+      //   changeOrigin: true,
+      //   rewrite: (path) => path.replace('//my/article$/', '')
+      // }
     }
   }
 });
