@@ -3,22 +3,23 @@
 /**
  * 获取树形结构数据
  * @param data 数据
- * @param level 节点
- * @param idFeild 字段名
- * @param pidFeild 上一级字段名
+ * @param level 父id层级
+ * @param idField 字段名
+ * @param pidField 上一级字段名
  * @returns {null|[]}
  */
-const getTreeData = function (data, level = null, idFeild = 'id', pidFeild = 'parent_id') {
+const getTreeData = function (data, level = null, idField = 'id', pidField = 'parent_id') {
   const tree = [];
   const _level = [];
+  // 第一次进来获取所有父id
   if (level === null) {
     data.forEach(function (item) {
-      _level.push(item[pidFeild]);
+      _level.push(item[pidField]);
     });
     level = Math.min(..._level);
   }
   data.forEach(function (item) {
-    if (item[pidFeild] === level) {
+    if (item[pidField] === level) {
       tree.push(item);
     }
   });
@@ -26,11 +27,13 @@ const getTreeData = function (data, level = null, idFeild = 'id', pidFeild = 'pa
     return null;
   }
 
-  // 对于父节点为0的进行循环，然后查出父节点为上面结果id的节点内容
+  // 对于父id为0的进行循环，然后查出父节点为上面结果id的节点内容
   tree.forEach(function (item) {
-    const childData = getTreeData(data, item[idFeild], idFeild, pidFeild);
-    if (childData != null) {
-      item['children'] = childData;
+    if (item.type !== 'B') {
+      const childData = getTreeData(data, item[idField], idField, pidField);
+      if (childData != null) {
+        item['children'] = childData;
+      }
     }
   });
   return tree;

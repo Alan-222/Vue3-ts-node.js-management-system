@@ -108,11 +108,25 @@ exports.editMenu = (req, res) => {
 };
 
 exports.deleteMenu = (req, res) => {
-  MenusModel.destroy({
-    where: {
-      [Op.or]: [{ menu_id: req.body.id }, { parent_id: req.body.id }]
+  // MenusModel.destroy({
+  //   where: {
+  //     [Op.or]: [{ menu_id: req.body.id }, { parent_id: req.body.id }]
+  //   }
+  // }).then(function (menu) {
+  //   return res.send({
+  //     code: 0,
+  //     message: '删除成功',
+  //     data: menu
+  //   });
+  // });
+  MenusModel.deleteMenu(req.body.id).then(function (menu) {
+    if (menu !== true) {
+      return res.send({
+        code: 1,
+        message: '删除失败',
+        data: null
+      });
     }
-  }).then(function (menu) {
     return res.send({
       code: 0,
       message: '删除成功',

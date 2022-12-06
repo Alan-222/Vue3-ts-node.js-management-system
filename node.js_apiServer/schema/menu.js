@@ -9,9 +9,15 @@ const joi = require('joi');
  */
 // 菜单的校验规则
 const name = joi.string().alphanum().required();
-const component = joi.string().uri({ relativeOnly: true }).required();
-const path = joi.string().uri({ relativeOnly: true }).required();
-const redirct = joi.string().uri({ relativeOnly: true });
+const component = joi
+  .string()
+  .pattern(/^\/[^\s]*$/)
+  .required();
+const path = joi
+  .string()
+  .pattern(/^\/[^\s]*$/)
+  .required();
+const redirct = joi.string().pattern(/^\/[^\s]*$/);
 const permission = joi.string().alphanum();
 // 定义 id, nickname, emial 的验证规则
 const menu_id = joi.number().integer().min(0).required();
