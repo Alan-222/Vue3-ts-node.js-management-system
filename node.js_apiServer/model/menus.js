@@ -3,6 +3,7 @@ const moment = require('moment');
 const sequelize = require('./init');
 const tools = require('../utils/tools');
 const Op = Sequelize.Op;
+const RolesModel = require('./roles');
 // 定义表的模型
 const MenusModel = sequelize.define('menus', {
   menu_id: {
