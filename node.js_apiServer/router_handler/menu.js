@@ -5,22 +5,34 @@ const Op = Sequelize.Op;
 function filterRoutes(routes) {
   const res = [];
   routes.forEach((item) => {
+    // 目录、菜单是否存在孩子
     if (item.children) {
-      if (item.children[0].type === 'B') {
+      // 检测菜单孩子是否存在按钮
+      if (item.children.some((item) => item.type === 'B')) {
         const perms = [];
-        item.children.forEach((item) => {
-          perms.push({
-            value: item.menu_id,
-            label: item.title,
-            permission: item.permission
-          });
+        const children = [];
+        // 若是按钮的用perm数组存储、是菜单的用children存储
+        item.children.forEach((_item) => {
+          if (_item.type === 'B') {
+            perms.push({
+              value: _item.menu_id,
+              label: _item.title,
+              permission: _item.permission
+            });
+          } else {
+            children.push(_item);
+          }
         });
         const menuItem = {
           value: item.menu_id,
           label: item.title,
+          children: children || undefined,
           perms: perms || undefined
         };
-
+        // 继续递归判断菜单之下是否还有孩子
+        if (menuItem.children && menuItem.children.length) {
+          menuItem.children = filterRoutes(menuItem.children);
+        }
         res.push(menuItem);
       } else {
         const menuItem = {
@@ -28,6 +40,7 @@ function filterRoutes(routes) {
           label: item.title,
           children: item.children || undefined
         };
+        // 继续递归判断菜单之下是否还有孩子
         if (menuItem.children && menuItem.children.length) {
           menuItem.children = filterRoutes(menuItem.children);
         }
