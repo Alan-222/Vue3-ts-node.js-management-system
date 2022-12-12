@@ -17,11 +17,8 @@ const instance = Axios.create({
   timeout: TIME_OUT
 });
 // 不需要token的接口白名单
-const whiteList = ['/user/login', '/user/refreshToken'];
-// 可以添加一个axios的全局配置
-// instance.defaults.headers['Content-Type'] = 'application/json;charset=utf-8';
-// // 对应国际化资源文件后缀
-// instance.defaults.headers['Content-Language'] = 'zh_CN';
+const whiteList = ['/user/login', '/user/refreshToken', '/user/checkCode'];
+
 // 添加请求拦截器
 instance.interceptors.request.use(
   (config) => {
@@ -48,7 +45,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => {
     // console.log(response);
-
+    // 如果返回的类型为二进制文件类型
     if (response.config.responseType === 'blob') {
       if (response.status != 200) {
         ElMessage.error('请求失败' + response.status);
