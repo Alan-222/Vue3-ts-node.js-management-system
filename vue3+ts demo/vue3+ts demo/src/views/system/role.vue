@@ -311,13 +311,13 @@ const handleResourceCheckChange = (
   if (isCheck === false) {
     data.buttons = []
   }
-  if (isCheck === true) {
-    if (data.perms) {
-      data.buttons = data.perms.map((item) => {
-        return item.permission;
-      })
-    }
-  }
+  // if (isCheck === true) {
+  //   if (data.perms) {
+  //     data.buttons = data.perms.map((item) => {
+  //       return item.permission;
+  //     })
+  //   }
+  // }
   // if (data.perms) {
   //   data.perms.forEach(item => {
   //     btnPerms.value[item.value] = isCheck;
