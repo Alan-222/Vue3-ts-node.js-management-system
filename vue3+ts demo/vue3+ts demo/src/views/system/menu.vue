@@ -1,5 +1,5 @@
 <template>
-  <div class="content-title">用户管理</div>
+  <div class="content-title">菜单管理</div>
   <div class="content-container">
     <!-- 搜索表单 -->
     <el-form class="table-Handler" ref="queryFormRef" :model="queryParams" :inline="true">

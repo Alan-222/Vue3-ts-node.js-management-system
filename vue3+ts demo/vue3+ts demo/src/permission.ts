@@ -2,7 +2,6 @@ import router from '@/router';
 import { ElMessage } from 'element-plus';
 import store from '@/store';
 import NProgress from 'nprogress';
-import { getToken } from '@/utils/auth';
 import getPageTitle from '@/utils/get-title';
 import 'nprogress/nprogress.css';
 import permission from '@/store/module/permission';

@@ -79,7 +79,12 @@ instance.interceptors.response.use(
                 removeToken();
                 removeRefreshToken();
                 // 重置token失败，跳转登录页
-                router.replace('/login');
+                router.replace({
+                  path: '/login',
+                  query: {
+                    redirect: router.currentRoute.fullPath //登录成功后跳入浏览的当前页
+                  }
+                });
               })
               .finally(() => {
                 isRefreshing = false;

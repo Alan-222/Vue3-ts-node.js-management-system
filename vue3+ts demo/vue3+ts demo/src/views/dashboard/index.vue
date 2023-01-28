@@ -83,7 +83,8 @@
                   }
                 }">{{ item.title }}</router-link>
               </el-tooltip>
-              <span class="artcate">{{ item.artcates && item.artcates.length ? item.artcates.map(item => item.name) : ''
+              <span class="artcate">{{
+                item.artcates && item.artcates.length ? item.artcates.map(item => item.name) : ''
               }}</span>
               <span class="author">作者：{{ item.user.username }}</span>
               <span class="create_time">{{ item.create_time }}</span>
@@ -100,7 +101,7 @@
           文章审核情况分布图
         </div>
         <div class="card-log-body">
-          <echarts-pie chartId="dashboardChartOne" :chartData="chartValues"></echarts-pie>
+          <echarts-pie></echarts-pie>
         </div>
       </div>
     </el-col>
@@ -110,7 +111,7 @@
           文章分类数量图
         </div>
         <div class="card-log-body">
-          <EchartsBar chartId="dashboardChartTwo" :chartData="chartOneValues"></EchartsBar>
+          <EchartsBar></EchartsBar>
         </div>
       </div>
     </el-col>
@@ -139,19 +140,11 @@ const count = reactive({
 })
 const activities = ref([] as logListItem[])
 const essays = ref([] as essayItem[])
-const chartValues = ref({
-  chartValue: [] as essayChartArray[],
-  chartAxis: []
-})
-const chartOneValues = ref({
-  chartValue: [] as number[],
-  chartAxis: [] as string[],
-})
+
 onMounted(() => {
   getAllModel()
   getLog()
   getEssays()
-  getEssaysCount()
 })
 function getAllModel() {
   getAllModelCount().then(res => {
@@ -169,25 +162,6 @@ function getLog() {
 function getEssays() {
   getEssayList().then(res => {
     essays.value = res.data
-  })
-}
-function getEssaysCount() {
-  getEssayNum().then(res => {
-    res.data.forEach((item: essayChartArray) => {
-      if (item.name === "已审核文章" || item.name === "未审核文章") {
-        chartValues.value.chartValue.push({
-          value: item.value,
-          name: item.name
-        })
-      }
-    });
-    chartOneValues.value.chartValue = res.data.map((item: essayChartArray) => {
-      return item.value
-
-    });
-    chartOneValues.value.chartAxis = res.data.map((item: essayChartArray) => {
-      return item.name
-    });
   })
 }
 </script>
