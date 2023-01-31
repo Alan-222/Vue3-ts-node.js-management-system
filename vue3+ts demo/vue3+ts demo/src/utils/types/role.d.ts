@@ -11,7 +11,7 @@ declare interface RoleQueryParam {
  * 角色分页列表项
  */
 declare interface RoleItem {
-  role_id: string;
+  role_id: number;
   role_name: string;
   remark: string;
   status: number;
@@ -29,7 +29,7 @@ declare interface RoleItem {
  * 角色表单类型
  */
 declare interface RoleFormData {
-  role_id: string | undefined;
+  role_id: number | undefined;
   role_name: string;
   remark: string;
   status: number;

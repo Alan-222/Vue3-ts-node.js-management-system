@@ -2,12 +2,13 @@ import { createStore } from 'vuex';
 import { userLogin } from '@/utils/API/user/user';
 import { getUserInfo } from '@/utils/Api/user/personalCenter';
 import router, { resetRouter } from '@/router';
-import { getToken, setToken, removeToken, setRefreshToken, removeRefreshToken } from '@/utils/auth';
+import { getToken, getRefreshToken, setToken, removeToken, setRefreshToken, removeRefreshToken } from '@/utils/auth';
 import permission from './module/permission';
 import { ElMessage } from 'element-plus';
 export default createStore({
   state: {
     token: getToken() || '',
+    refreshToken: getRefreshToken() || '',
     roles: [],
     menus: [],
     buttons: [],
@@ -20,6 +21,9 @@ export default createStore({
   mutations: {
     SET_TOKEN: (state, token) => {
       state.token = token;
+    },
+    SET_REFRESHTOKEN: (state, refreshToken) => {
+      state.refreshToken = refreshToken;
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles;
@@ -46,6 +50,7 @@ export default createStore({
         userLogin(data)
           .then((res) => {
             commit('SET_TOKEN', res.data.token);
+            commit('SET_REFRESHTOKEN', res.data.refreshToken);
             setToken(res.data.token);
             setRefreshToken(res.data.refreshToken);
             ElMessage.success('登录成功');
@@ -60,6 +65,7 @@ export default createStore({
     logout({ commit, state }) {
       return new Promise((resolve) => {
         commit('SET_TOKEN', '');
+        commit('SET_REFRESHTOKEN', '');
         commit('updateUser', {
           username: '',
           nickname: '',
@@ -109,6 +115,7 @@ export default createStore({
     FedLogOut({ commit }) {
       return new Promise((resolve) => {
         commit('SET_TOKEN', '');
+        commit('SET_REFRESHTOKEN', '');
         commit('SET_ROLES', []);
         commit('SET_MENUS', []);
         commit('SET_BUTTONS', []);
@@ -132,7 +139,6 @@ export default createStore({
       return new Promise((resolve) => {
         commit('SET_TOKEN', '');
         removeToken();
-        removeRefreshToken();
         resolve(null);
       });
     },

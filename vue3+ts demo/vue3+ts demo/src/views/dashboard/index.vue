@@ -120,7 +120,7 @@
 </template>
 
 <script lang="ts">
-export default { name: "Dashboard", components: { EchartsPie, EchartsBar } };
+export default { name: "Dashboard" };
 </script>
 
 <script setup lang="ts">

@@ -1,7 +1,33 @@
 <template>
   <div class="content-title">文章分类管理</div>
   <div class="content-container">
-    <el-form class="table-Handler" :model="queryParams" ref="queryFormRef">
+    <!-- 搜索栏、表格 -->
+    <dataTable ref="dataTableRef" :requestApi="getArtcateList" :tableColumn="tableColumn" :otherConfig="otherConfig"
+      :pageSizes="[1, 3, 5, 10]" :dict="dict" selection="multiple" :tableColumnConfig="tableColumnConfig"
+      :setupConfig="setupConfig" :searchConfig="searchConfig" :searchReset="searchReset"
+      :searchBtnConfig="searchBtnConfig" border>
+      <!-- 角色项插槽 -->
+      <template #status="{ row, index }">
+        <el-tag v-if="row.status === 1" type="success">启用</el-tag>
+        <el-tag v-else type="info">禁用</el-tag>
+      </template>
+      <!-- 批量操作按钮插槽 -->
+      <template #multiple-operation="{ selectionData }">
+        <el-button color="#3c8dbc" :icon="CirclePlus" v-hasPerm="['artcate:add']" @click="handleAdd">新增
+        </el-button>
+        <el-button color="#3c8dbc" :icon="Remove" @click="handleDelete(selectionData)" v-hasPerm="['artcate:del']"
+          :disabled="!selectionData.length">批量删除</el-button>
+      </template>
+      <!-- 表格操作栏按钮插槽 -->
+      <template #setup="{ row, index }">
+        <el-button link type="primary" size="small" @click="handleCheck(row.id)">详情</el-button>
+        <el-button link type="primary" size="small" v-hasPerm="['artcate:edit']" @click="handleEdit(row.id)">
+          编辑</el-button>
+        <el-button link type="primary" size="small" v-hasPerm="['artcate:del']" @click="handleDelete(row)">
+          删除</el-button>
+      </template>
+    </dataTable>
+    <!-- <el-form class="table-Handler" :model="queryParams" ref="queryFormRef">
       <el-row :gutter="15">
         <el-col :span="1.5">
           <el-button color="#3c8dbc" :icon="CirclePlus" @click="handleAdd" v-hasPerm="['artcate:add']">新增</el-button>
@@ -54,7 +80,7 @@
     </el-table>
     <el-pagination v-model:currentPage="queryParams.currentPage" v-model:page-size="queryParams.pageSize"
       :page-sizes="[1, 3, 5, 10]" layout="total, sizes, prev, pager, next, jumper" :total="cateTotal"
-      @size-change="handleSizeChange" @current-change="handleCurrentChange" style="margin-top:20px" />
+      @size-change="handleSizeChange" @current-change="handleCurrentChange" style="margin-top:20px" /> -->
     <!-- 新增、编辑、详情弹窗 -->
     <el-dialog v-model="dialogFormVisible" :title="title" width="25%">
       <!-- 新增及编辑弹窗表单 -->
@@ -88,20 +114,63 @@ export default { name: 'Artcate' };
 </script>
 
 <script setup lang="ts">
-import { CirclePlus, Refresh, Search } from '@element-plus/icons-vue'
-import { ref, reactive, onMounted } from 'vue'
+import dataTable from '@/components/table/table.vue'
+import { CirclePlus, Remove, Search } from '@element-plus/icons-vue'
+import { ref, reactive, toRefs } from 'vue'
 import { ElTable, ElMessageBox, ElMessage, FormInstance } from 'element-plus'
 import { getArtcateList, deleteCatesById, getCatesById, updateArtcate, addArtcate } from '@/utils/API/article/artcate'
 
 /**
- * 调用获取分类列表
+ * 表格参数
  */
-onMounted(() => {
-  console.log(queryFormRef.value);
-
-  // 获取分类列表
-  getCatesListByPage()
+const dataTableRef = ref()
+const tableState = reactive({
+  tableColumn: [
+    { prop: 'id', label: '分类编号' },
+    { prop: 'name', label: '分类名称' },
+    { prop: 'alias', label: '分类别名' },
+    { prop: 'status', label: '状态', dictCode: 'status', slot: true },
+    { prop: 'create_time', label: '创建时间' }
+  ],
+  tableColumnConfig: {
+    align: "center"
+  },
+  otherConfig: {
+    list: 'rows'
+  },
+  setupConfig: {
+    fixed: "right",
+    align: "center"
+  },
+  dict: {
+    status: [
+      { code: 0, name: '停用' },
+      { code: 1, name: '启用' }
+    ]
+  },
+  searchConfig: [
+    { type: 'input', prop: 'name', label: "分类名称" },
+    {
+      type: 'select',
+      prop: 'status',
+      label: '状态',
+      selectList: [
+        { code: 0, name: '停用' },
+        { code: 1, name: '启用' }
+      ],
+      listLabel: 'name',
+      listValue: 'code',
+    }
+  ],
+  searchReset: {
+    name: undefined,
+    status: undefined
+  },
+  searchBtnConfig: {
+    color: "#3c8dbc"
+  }
 })
+const { tableColumn, tableColumnConfig, otherConfig, setupConfig, dict, searchConfig, searchReset, searchBtnConfig } = toRefs(tableState)
 /**
  * 获取分类列表
  */
@@ -127,26 +196,7 @@ const handleSelectionChange = (selection: any) => {
 }
 // 按照分页显示数据的函数
 const getCatesListByPage = () => {
-  loading.value = true
-  // 发送ajax请求 把分页数据发送给后端
-  getArtcateList(queryParams)
-    .then(res => {
-      // 接收后端返回的数据总条数 total 和 对应页码的数据 data
-      let { count, rows } = res.data;
-      // 赋值给对应的变量即可
-      cateTotal.value = count;
-      tableData.data = rows;
-      // 如果当前页没有数据 且 排除第一页
-      if (!rows.length && queryParams.currentPage !== 1) {
-        // 页码减去 1
-        queryParams.currentPage -= 1;
-        // 再调用自己
-        getCatesListByPage();
-      }
-    })
-    .finally(() => {
-      loading.value = false
-    })
+  dataTableRef.value.getData()
 }
 // 每页显示条数改变 就会触发这个函数
 const handleSizeChange = (val: number) => {
@@ -249,8 +299,13 @@ const handleEdit = (id: number) => {
     showBtn.value = true
   })
 }
-const handleDelete = (row: artcateUpdateForm) => {
-  const ids = row.id || select.ids
+const handleDelete = (rows: artcateUpdateForm | artcateUpdateForm[]) => {
+  let ids: number | number[];
+  if (Array.isArray(rows)) {
+    ids = rows.map((item) => item.id)
+  } else {
+    ids = rows.id
+  }
   ElMessageBox.confirm(
     '是否确认删除用户编号为「' + ids + '」的数据项?',
     'Warning',

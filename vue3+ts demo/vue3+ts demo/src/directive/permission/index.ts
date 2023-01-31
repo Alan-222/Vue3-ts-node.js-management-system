@@ -7,7 +7,7 @@ import { Directive, DirectiveBinding } from 'vue';
 export const hasPerm: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
     // 「超级管理员」拥有所有的按钮权限
-    const roles = useStore.state.roles;
+    const roles: string[] = useStore.state.roles;
     if (roles.includes('ROOT')) {
       return true;
     }

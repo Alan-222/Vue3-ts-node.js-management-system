@@ -66,9 +66,11 @@ instance.interceptors.response.use(
             return refreshToken()
               .then((res) => {
                 // 刷新token成功，更新最新token
-                const { token, refreshToken } = res.data;
+                const { token, refresh_token } = res.data;
+                store.commit('SET_TOKEN', token);
+                store.commit('SET_REFRESHTOKEN', refresh_token);
                 setToken(token);
-                setRefreshToken(refreshToken);
+                setRefreshToken(refresh_token);
                 //已经刷新了token，将所有队列中的请求进行重试
                 requests.forEach((cb) => cb(token));
                 // 重试完了别忘了清空这个队列

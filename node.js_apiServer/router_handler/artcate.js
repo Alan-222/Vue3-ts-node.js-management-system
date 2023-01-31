@@ -36,12 +36,12 @@ exports.getArticleCates = (req, res) => {
   // 根据分类的状态，获取所有未被删除的分类列表数据
   // status 为 0 表示没有被 标记为删除 的数据
   let name = req.query.name;
-  let alias = req.query.alias;
+  let status = req.query.status;
   if (name) {
     where.name = { [Op.like]: `%${name}%` };
   }
-  if (alias) {
-    where.alias = { [Op.like]: `%${alias}%` };
+  if (status) {
+    where.status = { [Op.equal]: status };
   }
   ArtcateModel.findAndCountAll({
     offset: offset,

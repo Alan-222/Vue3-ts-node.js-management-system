@@ -1,7 +1,7 @@
 const express = require('express');
 const MenusModel = require('../model/menus');
 const RoleModel = require('../model/roles');
-
+const { Op } = require('sequelize');
 exports.getList = (req, res) => {
   // 接收前端参数
   let { pageSize, currentPage } = req.query;
@@ -11,8 +11,12 @@ exports.getList = (req, res) => {
   offset = (offset - 1) * pageSize;
   let where = {};
   let role_name = req.query.role_name;
+  let status = req.query.status;
   if (role_name) {
     where.role_name = { [Op.like]: `%${role_name}%` };
+  }
+  if (status) {
+    where.status = { [Op.eq]: status };
   }
   RoleModel.findAndCountAll({
     offset: offset,

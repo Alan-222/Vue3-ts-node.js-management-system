@@ -4,7 +4,7 @@
 
 
 <script lang="ts">
-export default { name: "EchartsBar", components: { Chart } };
+export default { name: "EchartsBar" };
 </script>
 <script setup  lang="ts">
 /**

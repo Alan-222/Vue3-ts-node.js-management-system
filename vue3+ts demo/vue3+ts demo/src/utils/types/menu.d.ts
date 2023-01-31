@@ -12,7 +12,7 @@ declare interface MenuQueryParam {
 declare interface MenuItem {
   menu_id?: number;
   parent_id: number;
-  type?: string | 'C' | 'M' | 'EXTLINK';
+  type?: string | 'C' | 'M' | 'B';
   createTime: string;
   updateTime: string;
   name: string;
@@ -30,7 +30,7 @@ declare interface MenuFormData {
   /**
    * 菜单ID
    */
-  menu_id?: number;
+  menu_id: number | undefined;
   /**
    * 父菜单ID
    */

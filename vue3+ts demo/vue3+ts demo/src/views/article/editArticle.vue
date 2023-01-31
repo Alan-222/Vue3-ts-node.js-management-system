@@ -61,7 +61,7 @@ const router = useRouter()
 // 文章内容
 let id = ref<number>(-1)
 // 自动保存定时器
-let timeId = ref<undefined | NodeJS.Timeout>(undefined)
+let timeId = ref<undefined | any>(undefined)
 let autoSaveTip = ref(false)
 // 控制提交面板的显隐
 let open = ref(false)

@@ -6,11 +6,11 @@ const Op = Sequelize.Op;
 UserLogsModel.hasOne(UsersModel, { foreignKey: 'id', sourceKey: 'user_id' });
 
 exports.getLogList = (req, res) => {
-  if (req.query.page <= 0) {
-    req.query.page = 1;
+  if (req.query.currentPage <= 0) {
+    req.query.currentPage = 1;
   }
-  if (req.query.limit > 50) {
-    req.query.limit = 50;
+  if (req.query.pageSize > 50) {
+    req.query.pageSize = 50;
   }
   let where = {};
   if (req.query.date && req.query.date.length === 2) {
@@ -20,10 +20,10 @@ exports.getLogList = (req, res) => {
       }
     };
   }
-  const offset = (req.query.page - 1) * req.query.limit;
+  const offset = (req.query.currentPage - 1) * req.query.currentPage;
   UserLogsModel.findAndCountAll({
     offset,
-    limit: parseInt(req.query.limit) || 20,
+    limit: parseInt(req.query.pageSize) || 20,
     include: [
       {
         model: UsersModel,

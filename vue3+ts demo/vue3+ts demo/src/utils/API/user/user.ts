@@ -1,5 +1,5 @@
 import $http from '../../http';
-import { getRefreshToken } from '@/utils/auth';
+import useStore from '@/store';
 // 获取图形验证码
 export const getCheckCode = (uuid: number) => {
   return $http({
@@ -12,7 +12,7 @@ export const refreshToken = () => {
   return $http({
     url: '/user/refreshToken',
     method: 'post',
-    data: { refreshToken: getRefreshToken() }
+    data: { refreshToken: useStore.state.refreshToken }
   });
 };
 // 添加用户登录请求 data如果约定好可以添加ts 接口类型

@@ -1,72 +1,43 @@
 <template>
   <div class="content-title">菜单管理</div>
   <div class="content-container">
-    <!-- 搜索表单 -->
-    <el-form class="table-Handler" ref="queryFormRef" :model="queryParams" :inline="true">
-      <el-form-item>
-        <el-button color="#3c8dbc" :icon="CirclePlus" v-hasPerm="['system:menu:add']" @click="handleAdd">新增</el-button>
-      </el-form-item>
-
-      <el-form-item prop="title" v-hasPerm="['system:menu:query']" label="菜单标题">
-        <el-input v-model="queryParams.title" placeholder="菜单标题" clearable @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item>
-        <el-button color="#3c8dbc" :icon="Search" v-hasPerm="['system:menu:query']" @click="handleQuery">搜索</el-button>
-        <el-button color="#3c8dbc" :icon="Refresh" v-hasPerm="['system:menu:query']" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
-
-    <!-- 数据表格 -->
-    <el-table v-loading="loading" :data="menuList" highlight-current-row
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" @row-click="handleRowClick" row-key="menu_id"
-      border default-expand-all>
-      <el-table-column label="菜单标题">
-        <template #default="scope">
-          <svg-icon :icon-class="
-            scope.row.icon
-          " />
-          {{ scope.row.title }}
-        </template>
-      </el-table-column>
-      <el-table-column label="路由名称" align="center" prop="name" />
-      <el-table-column label="菜单类型" align="center" width="100">
-        <template #default="scope">
-          <el-tag v-if="scope.row.type === 'M'" type="warning">目录</el-tag>
-          <el-tag v-if="scope.row.type === 'C'" type="success">菜单</el-tag>
-          <el-tag v-if="scope.row.type === 'B'" type="danger">按钮</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="权限标识" align="center" prop="permission" />
-
-      <el-table-column label="状态" align="center" width="100">
-        <template #default="scope">
-          <el-tag v-if="scope.row.hidden === 0" type="success">显示</el-tag>
-          <el-tag v-else type="info">隐藏</el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="排序" align="center" width="80" prop="sort" />
-
-      <el-table-column label="创建时间" align="center" width="180" prop="create_time">
-      </el-table-column>
-
-      <el-table-column label="修改时间" align="center" width="180" prop="update_time">
-      </el-table-column>
-
-      <el-table-column label="操作" align="center" width="180">
-        <template #default="scope">
-          <el-button link type="primary" size="small" v-if="scope.row.type !== 'B'" v-hasPerm="['system:menu:add']"
-            @click.stop="handleAdd(scope.row)">新增
-          </el-button>
-          <el-button link type="primary" size="small" v-hasPerm="['system:menu:edit']"
-            @click.stop="handleUpdate(scope.row)">
-            修改</el-button>
-          <el-button link type="primary" size="small" v-hasPerm="['system:menu:del']"
-            @click.stop="handleDelete(scope.row)">
-            删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <!-- 搜索栏、表格 -->
+    <dataTable ref="dataTableRef" :requestApi="listMenus" :tableColumn="tableColumn" :pagination="false" :dict="dict"
+      :tableColumnConfig="tableColumnConfig" :setupConfig="setupConfig" :searchConfig="searchConfig"
+      :searchReset="searchReset" :searchBtnConfig="searchBtnConfig" @row-click="handleRowClick" row-key="menu_id" border
+      default-expand-all>
+      <!-- 标题插槽 -->
+      <template #title="{ row, index }">
+        <svg-icon :icon-class="row.icon" />
+        {{ row.title }}
+      </template>
+      <!-- 菜单类型插槽 -->
+      <template #type="{ row }">
+        <el-tag v-if="row.type === 'M'" type="warning">目录</el-tag>
+        <el-tag v-if="row.type === 'C'" type="success">菜单</el-tag>
+        <el-tag v-if="row.type === 'B'" type="danger">按钮</el-tag>
+      </template>
+      <!-- 状态插槽 -->
+      <template #hidden="{ row, index }">
+        <el-tag v-if="row.hidden === 0" type="success">显示</el-tag>
+        <el-tag v-else type="info">隐藏</el-tag>
+      </template>
+      <!-- 批量操作按钮插槽 -->
+      <template #multiple-operation="{ selectionData }">
+        <el-button color="#3c8dbc" :icon="CirclePlus" v-hasPerm="['system:menu:add']" @click="handleAdd">新增
+        </el-button>
+      </template>
+      <!-- 表格操作栏按钮插槽 -->
+      <template #setup="{ row, index }">
+        <el-button link type="primary" size="small" v-if="row.type !== 'B'" v-hasPerm="['system:menu:add']"
+          @click.stop="handleAdd(row)">新增
+        </el-button>
+        <el-button link type="primary" size="small" v-hasPerm="['system:menu:edit']" @click="handleUpdate(row)">
+          编辑</el-button>
+        <el-button link type="primary" size="small" v-hasPerm="['system:menui:del']" @click="handleDelete(row)">
+          删除</el-button>
+      </template>
+    </dataTable>
 
     <!-- dialog -->
     <el-dialog :title="dialog.title" v-model="dialog.visible" @close="cancel" width="750px">
@@ -155,9 +126,10 @@ export default { name: 'Menu' };
 </script>
 
 <script setup lang="ts">
+import dataTable from '@/components/table/table.vue'
 import { reactive, ref, onMounted, toRefs } from 'vue';
 
-import { Search, CirclePlus, Edit, Refresh, Delete } from '@element-plus/icons-vue';
+import { Search, CirclePlus, Remove } from '@element-plus/icons-vue';
 import { ElForm, ElMessage, ElMessageBox, ElPopover } from 'element-plus';
 
 // API 依赖
@@ -173,21 +145,52 @@ import {
 import SvgIcon from '@/components/SvgIcon/index.vue';
 import IconSelect from '@/components/IconSelect/index.vue';
 
+/**
+ * 表格参数
+ */
+const dataTableRef = ref()
+const tableState = reactive({
+  tableColumn: [
+    { prop: 'title', label: '菜单标题', slot: true, ellipsis: true },
+    { prop: 'name', label: '路由名称' },
+    { prop: 'type', label: '菜单类型', slot: true },
+    { prop: 'permission', label: '权限标识' },
+    { prop: 'hidden', label: '状态', dictCode: 'status', slot: true },
+    { prop: 'sort', label: '排序' },
+    { prop: 'create_time', label: '创建时间' },
+    { prop: 'update_time', label: '更新时间' },
+  ],
+  tableColumnConfig: {
+    border: true,
+    align: "center"
+  },
+  setupConfig: {
+    fixed: "right",
+    align: "center"
+  },
+  dict: {
+    hidden: [
+      { code: 0, name: '显示' },
+      { code: 1, name: '隐藏' }
+    ]
+  },
+  searchConfig: [
+    { type: 'input', prop: 'title', label: "菜单标题" },
+  ],
+  searchReset: {
+    title: undefined
+  },
+  searchBtnConfig: {
+    color: "#3c8dbc"
+  }
+})
+const { tableColumn, tableColumnConfig, setupConfig, dict, searchConfig, searchReset, searchBtnConfig } = toRefs(tableState)
+
 // const emit = defineEmits(['menuClick']);
-const queryFormRef = ref(ElForm);
 const dataFormRef = ref(ElForm);
 const popoverRef = ref(ElPopover);
 
 const state = reactive({
-  loading: true,
-  // 选中ID数组
-  ids: [],
-  // 非单个禁用
-  single: true,
-  // 非多个禁用
-  multiple: true,
-  queryParams: {} as MenuQueryParam,
-  menuList: [] as MenuItem[],
   dialog: { visible: false } as Dialog,
   formData: {
     parent_id: 0,
@@ -221,9 +224,6 @@ const state = reactive({
 });
 
 const {
-  loading,
-  queryParams,
-  menuList,
   dialog,
   formData,
   rules,
@@ -236,13 +236,7 @@ const {
  * 查询
  */
 function handleQuery() {
-  // 重置父组件
-  // emit('menuClick', null);
-  state.loading = true;
-  listMenus(state.queryParams).then(({ data }) => {
-    state.menuList = data;
-    state.loading = false;
-  });
+  dataTableRef.value.getData()
 }
 
 /**
@@ -255,14 +249,6 @@ async function loadMenuData() {
     menuOptions.push(menuOption);
     state.menuOptions = menuOptions;
   });
-}
-
-/**
- * 重置查询
- */
-function resetQuery() {
-  queryFormRef.value.resetFields();
-  handleQuery();
 }
 
 function handleRowClick(row: any) {
@@ -307,7 +293,7 @@ async function handleUpdate(row: MenuFormData) {
     title: '编辑菜单',
     visible: true
   };
-  const id = row.menu_id;
+  const id = row.menu_id as number;
   getMenuDetail(id).then(({ data }) => {
     state.formData = data;
     cacheData.value.menuType = data.type;
@@ -355,7 +341,7 @@ function submitForm() {
  * @param row
  */
 function handleDelete(row: any) {
-  const ids = row.menu_id || state.ids;
+  const ids = row.menu_id;
   ElMessageBox.confirm('确认删除已选中的数据项?', '警告', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -398,8 +384,4 @@ function selected(name: string) {
   state.formData.icon = name;
   state.iconSelectVisible = false;
 }
-
-onMounted(() => {
-  handleQuery();
-});
 </script>
